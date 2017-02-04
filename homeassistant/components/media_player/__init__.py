@@ -56,6 +56,7 @@ CONTENT_TYPE_HEADER = 'Content-Type'
 SERVICE_PLAY_MEDIA = 'play_media'
 SERVICE_SELECT_SOURCE = 'select_source'
 SERVICE_CLEAR_PLAYLIST = 'clear_playlist'
+SERVICE_NAVIGATE = 'navigate'
 
 ATTR_MEDIA_VOLUME_LEVEL = 'volume_level'
 ATTR_MEDIA_VOLUME_MUTED = 'is_volume_muted'
@@ -81,6 +82,7 @@ ATTR_SUPPORTED_MEDIA_COMMANDS = 'supported_media_commands'
 ATTR_INPUT_SOURCE = 'source'
 ATTR_INPUT_SOURCE_LIST = 'source_list'
 ATTR_MEDIA_ENQUEUE = 'enqueue'
+ATTR_MEDIA_DIRECTION = 'direction'
 
 MEDIA_TYPE_MUSIC = 'music'
 MEDIA_TYPE_TVSHOW = 'tvshow'
@@ -104,6 +106,7 @@ SUPPORT_SELECT_SOURCE = 2048
 SUPPORT_STOP = 4096
 SUPPORT_CLEAR_PLAYLIST = 8192
 SUPPORT_PLAY = 16384
+SUPPORT_NAVIGATION = 32768
 
 # Service call validation schemas
 MEDIA_PLAYER_SCHEMA = vol.Schema({
@@ -131,6 +134,10 @@ MEDIA_PLAYER_PLAY_MEDIA_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
     vol.Required(ATTR_MEDIA_CONTENT_TYPE): cv.string,
     vol.Required(ATTR_MEDIA_CONTENT_ID): cv.string,
     vol.Optional(ATTR_MEDIA_ENQUEUE): cv.boolean,
+})
+
+MEDIA_PLAYER_NAVIGATION_SCHEMA = MEDIA_PLAYER_SCHEMA.extend({
+    vol.Required(ATTR_MEDIA_DIRECTION): cv.string
 })
 
 SERVICE_TO_METHOD = {
@@ -161,6 +168,9 @@ SERVICE_TO_METHOD = {
     SERVICE_PLAY_MEDIA: {
         'method': 'async_play_media',
         'schema': MEDIA_PLAYER_PLAY_MEDIA_SCHEMA},
+    SERVICE_NAVIGATE: {
+        'method': 'async_navigate',
+        'schema': MEDIA_PLAYER_NAVIGATION_SCHEMA},
 }
 
 ATTR_TO_PROPERTY = [
@@ -307,6 +317,31 @@ def play_media(hass, media_type, media_id, entity_id=None, enqueue=None):
     hass.services.call(DOMAIN, SERVICE_PLAY_MEDIA, data)
 
 
+def navigate(hass, direction, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    data[ATTR_DIRECTION] = direction
+    hass.services.call(DOMAIN, SERVICE_NAVIGATE, data)
+
+
+def volume_up(hass, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    hass.services.call(DOMAIN, SERVICE_VOLUME_UP, data)
+
+
+def volume_up(hass, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    hass.services.call(DOMAIN, SERVICE_VOLUME_UP, data)
+
+
+def volume_up(hass, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    hass.services.call(DOMAIN, SERVICE_VOLUME_UP, data)
+
+
 def select_source(hass, source, entity_id=None):
     """Send the media player the command to select input source."""
     data = {ATTR_INPUT_SOURCE: source}
@@ -359,6 +394,8 @@ def async_setup(hass, config):
             params['media_id'] = service.data.get(ATTR_MEDIA_CONTENT_ID)
             params[ATTR_MEDIA_ENQUEUE] = \
                 service.data.get(ATTR_MEDIA_ENQUEUE)
+        elif service.service == SERVICE_NAVIGATE:
+            params['direction'] = service.data.get(ATTR_MEDIA_DIRECTION)
         target_players = component.async_extract_from_service(service)
 
         update_tasks = []
@@ -658,6 +695,13 @@ class MediaPlayerDevice(Entity):
         return self.hass.loop.run_in_executor(
             None, ft.partial(self.play_media, media_type, media_id, **kwargs))
 
+    def async_navigate(self, direction):
+        """Vavigation up/down/left/right within the media device.
+
+        This method must be run in the event loop and returns a coroutine.
+        """
+        return self.hass.loop.run_in_executor(None, self.navigate, direction)
+
     def select_source(self, source):
         """Select input source."""
         raise NotImplementedError()
@@ -726,6 +770,7 @@ class MediaPlayerDevice(Entity):
     @property
     def support_play_media(self):
         """Boolean if play media command supported."""
+        print("test2")
         return bool(self.supported_media_commands & SUPPORT_PLAY_MEDIA)
 
     @property
@@ -737,6 +782,12 @@ class MediaPlayerDevice(Entity):
     def support_clear_playlist(self):
         """Boolean if clear playlist command supported."""
         return bool(self.supported_media_commands & SUPPORT_CLEAR_PLAYLIST)
+
+    @property
+    def support_navigation(self):
+        """Boolean if next track command supported."""
+        print("test")
+        return bool(self.supported_media_commands & SUPPORT_NAVIGATION)
 
     def toggle(self):
         """Toggle the power on the media player."""

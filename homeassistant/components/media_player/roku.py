@@ -11,7 +11,8 @@ import voluptuous as vol
 from homeassistant.components.media_player import (
     MEDIA_TYPE_VIDEO, SUPPORT_NEXT_TRACK, SUPPORT_PLAY_MEDIA,
     SUPPORT_PREVIOUS_TRACK, SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_SET,
-    SUPPORT_SELECT_SOURCE, SUPPORT_PLAY, MediaPlayerDevice, PLATFORM_SCHEMA)
+    SUPPORT_SELECT_SOURCE, SUPPORT_PLAY, MediaPlayerDevice, PLATFORM_SCHEMA,
+    SUPPORT_NAVIGATION)
 from homeassistant.const import (
     CONF_HOST, STATE_IDLE, STATE_PLAYING, STATE_UNKNOWN, STATE_HOME)
 import homeassistant.helpers.config_validation as cv
@@ -27,7 +28,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SUPPORT_ROKU = SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK |\
     SUPPORT_PLAY_MEDIA | SUPPORT_VOLUME_SET | SUPPORT_VOLUME_MUTE |\
-    SUPPORT_SELECT_SOURCE | SUPPORT_PLAY
+    SUPPORT_SELECT_SOURCE | SUPPORT_PLAY | SUPPORT_NAVIGATION
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_HOST): cv.string,
@@ -42,6 +43,8 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         return
 
     if discovery_info is not None:
+        print("hi")
+        print(discovery_info)
         _LOGGER.debug('Discovered Roku: %s', discovery_info[0])
         hosts.append(discovery_info[0])
 
@@ -51,6 +54,8 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     rokus = []
     for host in hosts:
         new_roku = RokuDevice(host)
+        print("roku...")
+        print(new_roku)
 
         if new_roku.name is None:
             _LOGGER.error("Unable to initialize roku at %s", host)
@@ -85,13 +90,16 @@ class RokuDevice(MediaPlayerDevice):
             self.ip_address = self.roku.host
             self.channels = self.get_source_list()
 
+            print(self.device_info)
+
             if self.roku.current_app is not None:
                 self.current_app = self.roku.current_app
             else:
                 self.current_app = None
         except (requests.exceptions.ConnectionError,
-                requests.exceptions.ReadTimeout):
-
+                requests.exceptions.ReadTimeout) as e:
+            print("ERROR")
+            print(e)
             pass
 
     def get_source_list(self):
@@ -106,7 +114,12 @@ class RokuDevice(MediaPlayerDevice):
     @property
     def name(self):
         """Return the name of the device."""
-        return self.device_info.userdevicename
+        if self.device_info.userdevicename:
+            return self.device_info.userdevicename
+        elif self.device_info.modelname:
+            return self.device_info.modelname
+        else:
+            None
 
     @property
     def state(self):
@@ -218,3 +231,17 @@ class RokuDevice(MediaPlayerDevice):
             else:
                 channel = self.roku[source]
                 channel.launch()
+
+    def navigate(self, direction):
+        """Navigate up/down/left/right."""
+        if self.current_app is not None:
+            if direction == "up":
+                self.roku.up()
+            elif direction == "left":
+                self.roku.left()
+            elif direction == "right":
+                self.roku.right()
+            elif direction == "down":
+                self.roku.down()
+            else:
+                _LOGGER.warn('Unknown direction: %s', direction)
