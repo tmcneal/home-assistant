@@ -39,13 +39,45 @@ class CecSwitchDevice(CecDevice, SwitchDevice):
 
     def turn_on(self, **kwargs) -> None:
         """Turn device on."""
-        self._device.turn_on()
+        #self._device.turn_on()
+        self.testing()
         self._state = STATE_ON
 
     def turn_off(self, **kwargs) -> None:
         """Turn device off."""
-        self._device.turn_off()
+        #self._device.turn_off()
+        self.testing()
         self._state = STATE_ON
+    
+    def testing(self):
+        print("TRYING A TEST mute")
+        from pycec.commands import CecCommand
+        # HACK! Second octet gets overwritten with Logical Address gets overwritten in pycec.  For now
+        # we overwrite it before sending
+        self._device._logical_address = 15
+        print("ENTITY ID")
+        print(self.entity_id)
+        print("DOMAIN")
+        print(DOMAIN)
+        if 'hdmi_4' in self.entity_id:
+            self._device.send_command(CecCommand("EF:82:10:00"))
+        elif 'hdmi_8' in self.entity_id:
+            self._device.send_command(CecCommand("EF:82:20:00"))
+        elif 'hdmi_b' in self.entity_id:
+            self._device.send_command(CecCommand("EF:82:30:00"))
+        else:
+            print("DONT KNOW WHAT TO DO")
+        #self.send_keypress(KEY_MUTE_TOGGLE)
+
+    def send_keypress(self, key):
+        """Send keypress to CEC adapter."""
+        from pycec.commands import KeyPressCommand, KeyReleaseCommand
+        _LOGGER.debug("Sending keypress %s to device %s", hex(key),
+                      hex(self._logical_address))
+        self._device.send_command(
+            KeyPressCommand(key, dst=self._logical_address))
+        self._device.send_command(
+            KeyReleaseCommand(dst=self._logical_address))
 
     def toggle(self):
         """Toggle the entity."""

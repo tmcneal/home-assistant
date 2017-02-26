@@ -36,6 +36,7 @@ class CecPlayerDevice(CecDevice, MediaPlayerDevice):
 
     def __init__(self, hass: HomeAssistant, device, logical):
         """Initialize the HDMI device."""
+        print("INITIALIXED CEC")
         CecDevice.__init__(self, hass, device, logical)
         self.entity_id = "%s.%s_%s" % (
             DOMAIN, 'hdmi', hex(self._logical_address)[2:])
@@ -69,7 +70,8 @@ class CecPlayerDevice(CecDevice, MediaPlayerDevice):
 
     def turn_on(self):
         """Turn device on."""
-        self._device.turn_on()
+        #self._device.turn_on()
+        self.testing()
         self._state = STATE_ON
 
     def clear_playlist(self):
@@ -78,8 +80,14 @@ class CecPlayerDevice(CecDevice, MediaPlayerDevice):
 
     def turn_off(self):
         """Turn device off."""
-        self._device.turn_off()
+        #self._device.turn_off()
+        self.testing()
         self._state = STATE_OFF
+
+    def testing(self):
+        from pycec.const import KEY_VOLUME_UP
+        print("TRYING A TEST")
+        self.send_keypress(KEY_VOLUME_UP)
 
     def media_stop(self):
         """Stop playback."""
@@ -139,6 +147,7 @@ class CecPlayerDevice(CecDevice, MediaPlayerDevice):
 
     def _update(self, device=None):
         """Update device status."""
+        print("CEC UPDATE")
         if device:
             from pycec.const import STATUS_PLAY, STATUS_STOP, STATUS_STILL, \
                 POWER_OFF, POWER_ON
@@ -162,6 +171,9 @@ class CecPlayerDevice(CecDevice, MediaPlayerDevice):
         """Flag media commands that are supported."""
         from pycec.const import TYPE_RECORDER, TYPE_PLAYBACK, TYPE_TUNER, \
             TYPE_AUDIO
+        print("SELF TYPE")
+        print(self.type_id)
+        print(self.type)
         if self.type_id == TYPE_RECORDER or self.type == TYPE_PLAYBACK:
             return (SUPPORT_TURN_ON | SUPPORT_TURN_OFF | SUPPORT_PLAY_MEDIA |
                     SUPPORT_PAUSE | SUPPORT_STOP | SUPPORT_PREVIOUS_TRACK |
@@ -172,4 +184,6 @@ class CecPlayerDevice(CecDevice, MediaPlayerDevice):
         if self.type_id == TYPE_AUDIO:
             return (SUPPORT_TURN_ON | SUPPORT_TURN_OFF | SUPPORT_VOLUME_STEP |
                     SUPPORT_VOLUME_MUTE)
-        return SUPPORT_TURN_ON | SUPPORT_TURN_OFF
+        #return SUPPORT_TURN_ON | SUPPORT_TURN_OFF
+        return (SUPPORT_TURN_ON | SUPPORT_TURN_OFF |  SUPPORT_VOLUME_STEP |
+                SUPPORT_VOLUME_MUTE)
