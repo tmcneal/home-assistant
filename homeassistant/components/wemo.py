@@ -6,6 +6,7 @@ https://home-assistant.io/components/wemo/
 """
 import logging
 
+
 import voluptuous as vol
 
 from homeassistant.components.discovery import SERVICE_WEMO

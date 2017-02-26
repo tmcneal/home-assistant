@@ -39,12 +39,12 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     """Setup the Roku platform."""
     hosts = []
 
+    print("ROKU Discovery Info....")
+    print(discovery_info)
     if discovery_info and discovery_info in KNOWN_HOSTS:
         return
 
     if discovery_info is not None:
-        print("hi")
-        print(discovery_info)
         _LOGGER.debug('Discovered Roku: %s', discovery_info[0])
         hosts.append(discovery_info[0])
 
@@ -54,8 +54,6 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     rokus = []
     for host in hosts:
         new_roku = RokuDevice(host)
-        print("roku...")
-        print(new_roku)
 
         if new_roku.name is None:
             _LOGGER.error("Unable to initialize roku at %s", host)
@@ -89,8 +87,6 @@ class RokuDevice(MediaPlayerDevice):
             self.device_info = self.roku.device_info
             self.ip_address = self.roku.host
             self.channels = self.get_source_list()
-
-            print(self.device_info)
 
             if self.roku.current_app is not None:
                 self.current_app = self.roku.current_app
