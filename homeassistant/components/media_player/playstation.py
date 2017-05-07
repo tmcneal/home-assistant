@@ -190,5 +190,7 @@ class PS3Device(MediaPlayerDevice):
             self.bluetooth.send_command(self.commands.DOWN)
         elif command == "enter":
             self.bluetooth.send_command(self.commands.ENTER)
+        elif command == "cancel":
+            self.bluetooth.send_command(self.commands.CANCEL)
         else:
-            _LOGGER.warn('Unknown direction: %s', direction)
+            _LOGGER.warn('Unknown direction: %s', command)
