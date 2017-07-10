@@ -25,6 +25,8 @@ REQUIREMENTS = ['netdisco==1.0.1']
 
 DOMAIN = 'discovery'
 
+print("loading discovery")
+
 SCAN_INTERVAL = timedelta(seconds=300)
 SERVICE_NETGEAR = 'netgear_router'
 SERVICE_WEMO = 'belkin_wemo'
@@ -75,6 +77,7 @@ CONFIG_SCHEMA = vol.Schema({
 def async_setup(hass, config):
     """Start a discovery service."""
     from netdisco.discovery import NetworkDiscovery
+    print("discovery")
 
     logger = logging.getLogger(__name__)
     netdisco = NetworkDiscovery()
@@ -118,6 +121,7 @@ def async_setup(hass, config):
     @asyncio.coroutine
     def scan_devices(now):
         """Scan for devices."""
+        print("scan devices")
         results = yield from hass.async_add_job(_discover, netdisco)
 
         for result in results:
@@ -142,6 +146,7 @@ def async_setup(hass, config):
 
 def _discover(netdisco):
     """Discover devices."""
+    print("discovery devices")
     results = []
     try:
         netdisco.scan()
