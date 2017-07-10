@@ -398,7 +398,8 @@ myusps==1.1.2
 nad_receiver==0.0.6
 
 # homeassistant.components.discovery
-netdisco==1.0.1
+#netdisco==1.0.2
+../netdisco
 
 # homeassistant.components.sensor.neurio_energy
 neurio==0.3.1

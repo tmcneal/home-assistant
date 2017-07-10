@@ -58,6 +58,7 @@ SERVICE_HANDLERS = {
     'openhome': ('media_player', 'openhome'),
     'harmony': ('remote', 'harmony'),
     'bose_soundtouch': ('media_player', 'soundtouch'),
+    'playstation': ('media_player', 'playstation')
 }
 
 CONF_IGNORE = 'ignore'
