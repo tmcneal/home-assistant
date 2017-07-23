@@ -348,6 +348,10 @@ def main() -> int:
     config_dir = os.path.join(os.getcwd(), args.config)
     ensure_config_path(config_dir)
 
+    print('location')
+    import homeassistant
+    print(homeassistant.__file__)
+
     # Daemon functions
     if args.pid_file:
         check_pid(args.pid_file)

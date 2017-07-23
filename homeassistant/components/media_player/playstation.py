@@ -11,7 +11,7 @@ from homeassistant.components.media_player import (
     SUPPORT_PREVIOUS_TRACK, SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_SET,
     SUPPORT_SELECT_SOURCE, SUPPORT_PLAY, MediaPlayerDevice, PLATFORM_SCHEMA)
 from homeassistant.const import (
-    CONF_HOST, STATE_UNKNOWN)
+    CONF_HOST, STATE_ON)
 import homeassistant.helpers.config_validation as cv
 
 REQUIREMENTS = []
@@ -33,7 +33,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     """Setup the Playstation 3 platform."""
     hosts = []
 
-    print("PS3 Discovery Info..")
+    print("PS3 Discovery Info.. NEW!!!")
     print(discovery_info)
     print(add_devices)
     print(config)
@@ -97,11 +97,6 @@ class PS3Device(MediaPlayerDevice):
         """Retrieve latest state."""
         print("PS3 Update")
 
-    def get_source_list(self):
-        """Get the list of applications to be used as sources."""
-        print("PS3 getsource")
-        return ["TODO SOURCE LIST"]
-
     @property
     def should_poll(self):
         """Device should be polled."""
@@ -111,44 +106,39 @@ class PS3Device(MediaPlayerDevice):
     @property
     def name(self):
         """Return the name of the device."""
-        print("PS3 name")
         return "Playstation 3"
 
     @property
     def state(self):
         """Return the state of the device."""
         print("PS3 state")
-        return STATE_UNKNOWN #TODO
+        return STATE_ON
 
     @property
-    def supported_media_commands(self):
-        """Flag of media commands that are supported."""
+    def supported_features(self):
+        """Flag media player features that are supported."""
         print("PS3 supportedmedia")
         return SUPPORT_PLAYSTATION_3
 
     @property
     def media_content_type(self):
         """Content type of current playing media."""
-        print("PS3 mediacontenttype")
-        return None #TODO
+        return None
 
     @property
     def media_image_url(self):
         """Image url of current playing media."""
-        print("PS3 mediaimageurl")
-        return None #TODO
+        return None
 
     @property
     def source(self):
         """Return the current input source."""
-        print("PS3 source")
-        return None #TODO
+        return None
 
     @property
     def source_list(self):
         """List of available input sources."""
-        print("PS3 sourcelist")
-        return None #TODO
+        return None
 
     def media_play_pause(self):
         """Send play/pause command."""
