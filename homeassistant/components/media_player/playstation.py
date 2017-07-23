@@ -112,9 +112,9 @@ class PS3Device(MediaPlayerDevice):
     def state(self):
         """Return the state of the device."""
         print("PS3 state")
-        self.bluetooth.send_command(self.commands.VOLUME_UP)
-        self.bluetooth.send_command(self.commands.PREV_TRACK)
-        self.bluetooth.send_command(self.commands.MUTE_VOLUME)
+        self.bluetooth.send_command("up")
+        self.bluetooth.send_command("left")
+        self.bluetooth.send_command("enter")
         return STATE_ON
 
     @property
