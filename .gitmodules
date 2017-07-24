@@ -1,3 +1,4 @@
 [submodule "homeassistant/components/frontend/www_static/home-assistant-polymer"]
 	path = homeassistant/components/frontend/www_static/home-assistant-polymer
 	url = https://github.com/tmcneal/home-assistant-polymer.git
+        branch = navigation
