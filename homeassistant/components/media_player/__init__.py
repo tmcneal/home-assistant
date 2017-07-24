@@ -107,6 +107,7 @@ SUPPORT_STOP = 4096
 SUPPORT_CLEAR_PLAYLIST = 8192
 SUPPORT_PLAY = 16384
 SUPPORT_SHUFFLE_SET = 32768
+SUPPORT_NAVIGATION = 65536
 
 # Service call validation schemas
 MEDIA_PLAYER_SCHEMA = vol.Schema({
@@ -153,6 +154,7 @@ SERVICE_TO_METHOD = {
     SERVICE_MEDIA_NEXT_TRACK: {'method': 'async_media_next_track'},
     SERVICE_MEDIA_PREVIOUS_TRACK: {'method': 'async_media_previous_track'},
     SERVICE_CLEAR_PLAYLIST: {'method': 'async_clear_playlist'},
+    SERVICE_NAVIGATE: {'method': 'async_navigate'},
     SERVICE_VOLUME_SET: {
         'method': 'async_set_volume_level',
         'schema': MEDIA_PLAYER_SET_VOLUME_SCHEMA},
@@ -220,6 +222,12 @@ def turn_off(hass, entity_id=None):
     """Turn off specified media player or all."""
     data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
     hass.services.call(DOMAIN, SERVICE_TURN_OFF, data)
+
+
+def support_navigation(self):
+    """Boolean if next track command supported."""
+    print("test")
+    return bool(self.supported_media_commands & SUPPORT_NAVIGATION)
 
 
 def toggle(hass, entity_id=None):
@@ -317,6 +325,31 @@ def play_media(hass, media_type, media_id, entity_id=None, enqueue=None):
     hass.services.call(DOMAIN, SERVICE_PLAY_MEDIA, data)
 
 
+def navigate(hass, direction, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    data[ATTR_DIRECTION] = direction
+    hass.services.call(DOMAIN, SERVICE_NAVIGATE, data)
+
+
+def volume_up(hass, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    hass.services.call(DOMAIN, SERVICE_VOLUME_UP, data)
+
+
+def volume_up(hass, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    hass.services.call(DOMAIN, SERVICE_VOLUME_UP, data)
+
+
+def volume_up(hass, entity_id=None):
+    """Send the media player the command for volume up."""
+    data = {ATTR_ENTITY_ID: entity_id} if entity_id else {}
+    hass.services.call(DOMAIN, SERVICE_VOLUME_UP, data)
+
+
 def select_source(hass, source, entity_id=None):
     """Send the media player the command to select input source."""
     data = {ATTR_INPUT_SOURCE: source}
@@ -382,6 +415,8 @@ def async_setup(hass, config):
         elif service.service == SERVICE_SHUFFLE_SET:
             params[ATTR_MEDIA_SHUFFLE] = \
                 service.data.get(ATTR_MEDIA_SHUFFLE)
+        elif service.service == SERVICE_NAVIGATE:
+            params['direction'] = service.data.get(ATTR_MEDIA_DIRECTION)
         target_players = component.async_extract_from_service(service)
 
         update_tasks = []
@@ -695,6 +730,13 @@ class MediaPlayerDevice(Entity):
         """
         return self.hass.async_add_job(
             ft.partial(self.play_media, media_type, media_id, **kwargs))
+
+    def async_navigate(self, direction):
+        """Navigation up/down/left/right within the media device.
+
+        This method must be run in the event loop and returns a coroutine.
+        """
+        return self.hass.loop.run_in_executor(None, self.navigate, direction)
 
     def select_source(self, source):
         """Select input source."""

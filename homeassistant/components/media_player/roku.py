@@ -11,7 +11,8 @@ import voluptuous as vol
 from homeassistant.components.media_player import (
     MEDIA_TYPE_VIDEO, SUPPORT_NEXT_TRACK, SUPPORT_PLAY_MEDIA,
     SUPPORT_PREVIOUS_TRACK, SUPPORT_VOLUME_MUTE, SUPPORT_VOLUME_SET,
-    SUPPORT_SELECT_SOURCE, SUPPORT_PLAY, MediaPlayerDevice, PLATFORM_SCHEMA)
+    SUPPORT_SELECT_SOURCE, SUPPORT_PLAY, MediaPlayerDevice, PLATFORM_SCHEMA,
+    SUPPORT_NAVIGATION)
 from homeassistant.const import (
     CONF_HOST, STATE_IDLE, STATE_PLAYING, STATE_UNKNOWN, STATE_HOME)
 import homeassistant.helpers.config_validation as cv
@@ -29,7 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SUPPORT_ROKU = SUPPORT_PREVIOUS_TRACK | SUPPORT_NEXT_TRACK |\
     SUPPORT_PLAY_MEDIA | SUPPORT_VOLUME_SET | SUPPORT_VOLUME_MUTE |\
-    SUPPORT_SELECT_SOURCE | SUPPORT_PLAY
+    SUPPORT_SELECT_SOURCE | SUPPORT_PLAY | SUPPORT_NAVIGATION
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_HOST): cv.string,
@@ -235,3 +236,17 @@ class RokuDevice(MediaPlayerDevice):
             else:
                 channel = self.roku[source]
                 channel.launch()
+
+    def navigate(self, direction):
+        """Navigate up/down/left/right."""
+        if self.current_app is not None:
+            if direction == "up":
+                self.roku.up()
+            elif direction == "left":
+                self.roku.left()
+            elif direction == "right":
+                self.roku.right()
+            elif direction == "down":
+                self.roku.down()
+            else:
+                _LOGGER.warn('Unknown direction: %s', direction)
